@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  pages: write          # ← 添加这行
+  id-token: write       # ← 添加这行
 
 jobs:
   build-and-deploy:
@@ -22,10 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm' # Uses package-lock.json for caching npm dependencies
+          cache: 'npm'  # 现在 package-lock.json 存在，缓存可以生效
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci  # ← 改成 npm ci（更适合 CI 环境）
 
       - name: Build Application
         run: npm run build
