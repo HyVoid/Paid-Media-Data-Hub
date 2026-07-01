@@ -230,6 +230,159 @@ export default function App() {
     };
   }, [rawRows, clientRules, platformRules, validationRows, engineRows]);
 
+  // --- CONSOLIDATED HOOKS FOR RULES OF HOOKS COMPLIANCE ---
+  // Executive Dashboard Tab calculations
+  const dashboardData = useMemo(() => {
+    if (dashboardClientFilter === "All") {
+      return standardizedRows;
+    }
+    return standardizedRows.filter(r => r.standardClient === dashboardClientFilter);
+  }, [standardizedRows, dashboardClientFilter]);
+
+  const stats = useMemo(() => {
+    const spend = dashboardData.reduce((acc, r) => acc + r.spend, 0);
+    const impressions = dashboardData.reduce((acc, r) => acc + r.impressions, 0);
+    const clicks = dashboardData.reduce((acc, r) => acc + r.clicks, 0);
+    const conversions = dashboardData.reduce((acc, r) => acc + r.conversions, 0);
+    const revenue = dashboardData.reduce((acc, r) => acc + r.revenue, 0);
+
+    const ctr = impressions > 0 ? (clicks / impressions) : 0;
+    const cpc = clicks > 0 ? (spend / clicks) : 0;
+    const cpa = conversions > 0 ? (spend / conversions) : 0;
+    const roas = spend > 0 ? (revenue / spend) : 0;
+
+    return { spend, impressions, clicks, conversions, revenue, ctr, cpc, cpa, roas };
+  }, [dashboardData]);
+
+  const chartData = useMemo(() => {
+    const grouped: Record<string, { spend: number; revenue: number }> = {};
+    standardizedRows.forEach(row => {
+      const cl = row.standardClient;
+      if (!grouped[cl]) grouped[cl] = { spend: 0, revenue: 0 };
+      grouped[cl].spend += row.spend;
+      grouped[cl].revenue += row.revenue;
+    });
+
+    return Object.entries(grouped).map(([client, vals]) => ({
+      client,
+      spend: vals.spend,
+      revenue: vals.revenue,
+    })).sort((a, b) => b.spend - a.spend);
+  }, [standardizedRows]);
+
+  const platformBreakdown = useMemo(() => {
+    const grouped: Record<string, number> = {};
+    let total = 0;
+    dashboardData.forEach(row => {
+      const plat = row.standardPlatform;
+      grouped[plat] = (grouped[plat] || 0) + row.spend;
+      total += row.spend;
+    });
+
+    return Object.entries(grouped).map(([platform, spend]) => ({
+      platform,
+      spend,
+      share: total > 0 ? spend / total : 0,
+    })).sort((a, b) => b.spend - a.spend);
+  }, [dashboardData]);
+
+  // Client Performance Tab calculations
+  const clientRows = useMemo(() => {
+    return standardizedRows.filter(r => r.standardClient === selectedClientPerf);
+  }, [standardizedRows, selectedClientPerf]);
+
+  const platformStats = useMemo(() => {
+    const grouped: Record<string, {
+      spend: number;
+      impressions: number;
+      clicks: number;
+      conversions: number;
+      revenue: number;
+    }> = {};
+
+    clientRows.forEach((row) => {
+      const p = row.standardPlatform;
+      if (!grouped[p]) {
+        grouped[p] = { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 };
+      }
+      grouped[p].spend += row.spend;
+      grouped[p].impressions += row.impressions;
+      grouped[p].clicks += row.clicks;
+      grouped[p].conversions += row.conversions;
+      grouped[p].revenue += row.revenue;
+    });
+
+    return Object.entries(grouped).map(([platform, vals]) => {
+      const ctr = vals.impressions > 0 ? (vals.clicks / vals.impressions) : 0;
+      const cpc = vals.clicks > 0 ? (vals.spend / vals.clicks) : 0;
+      const cpa = vals.conversions > 0 ? (vals.spend / vals.conversions) : 0;
+      const roas = vals.spend > 0 ? (vals.revenue / vals.spend) : 0;
+
+      return { platform, ...vals, ctr, cpc, cpa, roas };
+    }).sort((a, b) => b.spend - a.spend);
+  }, [clientRows]);
+
+  const typeStats = useMemo(() => {
+    const grouped: Record<string, {
+      spend: number;
+      impressions: number;
+      clicks: number;
+      conversions: number;
+      revenue: number;
+    }> = {};
+
+    clientRows.forEach((row) => {
+      const t = row.campaignType;
+      if (!grouped[t]) {
+        grouped[t] = { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 };
+      }
+      grouped[t].spend += row.spend;
+      grouped[t].impressions += row.impressions;
+      grouped[t].clicks += row.clicks;
+      grouped[t].conversions += row.conversions;
+      grouped[t].revenue += row.revenue;
+    });
+
+    return Object.entries(grouped).map(([type, vals]) => {
+      const ctr = vals.impressions > 0 ? (vals.clicks / vals.impressions) : 0;
+      const cpc = vals.clicks > 0 ? (vals.spend / vals.clicks) : 0;
+      const cpa = vals.conversions > 0 ? (vals.spend / vals.conversions) : 0;
+      const roas = vals.spend > 0 ? (vals.revenue / vals.spend) : 0;
+
+      return { type, ...vals, ctr, cpc, cpa, roas };
+    }).sort((a, b) => b.spend - a.spend);
+  }, [clientRows]);
+
+  const clientHero = useMemo(() => {
+    const spend = clientRows.reduce((acc, r) => acc + r.spend, 0);
+    const rev = clientRows.reduce((acc, r) => acc + r.revenue, 0);
+    const roas = spend > 0 ? rev / spend : 0;
+    const target = targetRoasMap[selectedClientPerf] || 2.0;
+    return { spend, rev, roas, target };
+  }, [clientRows, selectedClientPerf, targetRoasMap]);
+
+  // Raw Data Tab calculations
+  const filteredRawRows = useMemo(() => {
+    if (!rawSearchQuery) return rawRows;
+    const q = rawSearchQuery.toLowerCase();
+    return rawRows.filter(r => 
+      r.campaignName.toLowerCase().includes(q) || 
+      r.source.toLowerCase().includes(q) || 
+      r.accountId.toLowerCase().includes(q)
+    );
+  }, [rawRows, rawSearchQuery]);
+
+  // Standardized Fact Table Tab calculations
+  const filteredStdRows = useMemo(() => {
+    if (!stdSearchQuery) return standardizedRows;
+    const q = stdSearchQuery.toLowerCase();
+    return standardizedRows.filter(r => 
+      r.standardClient.toLowerCase().includes(q) || 
+      r.standardPlatform.toLowerCase().includes(q) ||
+      r.campaignType.toLowerCase().includes(q)
+    );
+  }, [standardizedRows, stdSearchQuery]);
+
 
   // ── CORE INTERACTIVE HANDLERS ──
 
@@ -455,65 +608,7 @@ export default function App() {
 
   // 1. Executive Dashboard Tab
   const renderDashboardTab = () => {
-    // Apply client filter
-    const dashboardData = useMemo(() => {
-      if (dashboardClientFilter === "All") {
-        return standardizedRows;
-      }
-      return standardizedRows.filter(r => r.standardClient === dashboardClientFilter);
-    }, [standardizedRows, dashboardClientFilter]);
-
-    // Aggregate metrics for cards
-    const stats = useMemo(() => {
-      const spend = dashboardData.reduce((acc, r) => acc + r.spend, 0);
-      const impressions = dashboardData.reduce((acc, r) => acc + r.impressions, 0);
-      const clicks = dashboardData.reduce((acc, r) => acc + r.clicks, 0);
-      const conversions = dashboardData.reduce((acc, r) => acc + r.conversions, 0);
-      const revenue = dashboardData.reduce((acc, r) => acc + r.revenue, 0);
-
-      const ctr = impressions > 0 ? (clicks / impressions) : 0;
-      const cpc = clicks > 0 ? (spend / clicks) : 0;
-      const cpa = conversions > 0 ? (spend / conversions) : 0;
-      const roas = spend > 0 ? (revenue / spend) : 0;
-
-      return { spend, impressions, clicks, conversions, revenue, ctr, cpc, cpa, roas };
-    }, [dashboardData]);
-
-    // Chart logic: Spend and Revenue grouped by client
-    const chartData = useMemo(() => {
-      const grouped: Record<string, { spend: number; revenue: number }> = {};
-      standardizedRows.forEach(row => {
-        const cl = row.standardClient;
-        if (!grouped[cl]) grouped[cl] = { spend: 0, revenue: 0 };
-        grouped[cl].spend += row.spend;
-        grouped[cl].revenue += row.revenue;
-      });
-
-      return Object.entries(grouped).map(([client, vals]) => ({
-        client,
-        spend: vals.spend,
-        revenue: vals.revenue,
-      })).sort((a, b) => b.spend - a.spend);
-    }, [standardizedRows]);
-
     const maxChartValue = Math.max(...chartData.map(d => Math.max(d.spend, d.revenue)), 1);
-
-    // Platform share breakdown
-    const platformBreakdown = useMemo(() => {
-      const grouped: Record<string, number> = {};
-      let total = 0;
-      dashboardData.forEach(row => {
-        const plat = row.standardPlatform;
-        grouped[plat] = (grouped[plat] || 0) + row.spend;
-        total += row.spend;
-      });
-
-      return Object.entries(grouped).map(([platform, spend]) => ({
-        platform,
-        spend,
-        share: total > 0 ? spend / total : 0,
-      })).sort((a, b) => b.spend - a.spend);
-    }, [dashboardData]);
 
     return (
       <div className="space-y-8 animate-fade-up">
@@ -749,84 +844,6 @@ export default function App() {
 
   // 2. Client Performance Tab
   const renderClientPerformanceTab = () => {
-    // Select client rows
-    const clientRows = useMemo(() => {
-      return standardizedRows.filter(r => r.standardClient === selectedClientPerf);
-    }, [standardizedRows, selectedClientPerf]);
-
-    // Platform level aggregate for selected client
-    const platformStats = useMemo(() => {
-      const grouped: Record<string, {
-        spend: number;
-        impressions: number;
-        clicks: number;
-        conversions: number;
-        revenue: number;
-      }> = {};
-
-      clientRows.forEach((row) => {
-        const p = row.standardPlatform;
-        if (!grouped[p]) {
-          grouped[p] = { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 };
-        }
-        grouped[p].spend += row.spend;
-        grouped[p].impressions += row.impressions;
-        grouped[p].clicks += row.clicks;
-        grouped[p].conversions += row.conversions;
-        grouped[p].revenue += row.revenue;
-      });
-
-      return Object.entries(grouped).map(([platform, vals]) => {
-        const ctr = vals.impressions > 0 ? (vals.clicks / vals.impressions) : 0;
-        const cpc = vals.clicks > 0 ? (vals.spend / vals.clicks) : 0;
-        const cpa = vals.conversions > 0 ? (vals.spend / vals.conversions) : 0;
-        const roas = vals.spend > 0 ? (vals.revenue / vals.spend) : 0;
-
-        return { platform, ...vals, ctr, cpc, cpa, roas };
-      }).sort((a, b) => b.spend - a.spend);
-    }, [clientRows]);
-
-    // Campaign Type aggregate for selected client (Brand vs Generic)
-    const typeStats = useMemo(() => {
-      const grouped: Record<string, {
-        spend: number;
-        impressions: number;
-        clicks: number;
-        conversions: number;
-        revenue: number;
-      }> = {};
-
-      clientRows.forEach((row) => {
-        const t = row.campaignType;
-        if (!grouped[t]) {
-          grouped[t] = { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 };
-        }
-        grouped[t].spend += row.spend;
-        grouped[t].impressions += row.impressions;
-        grouped[t].clicks += row.clicks;
-        grouped[t].conversions += row.conversions;
-        grouped[t].revenue += row.revenue;
-      });
-
-      return Object.entries(grouped).map(([type, vals]) => {
-        const ctr = vals.impressions > 0 ? (vals.clicks / vals.impressions) : 0;
-        const cpc = vals.clicks > 0 ? (vals.spend / vals.clicks) : 0;
-        const cpa = vals.conversions > 0 ? (vals.spend / vals.conversions) : 0;
-        const roas = vals.spend > 0 ? (vals.revenue / vals.spend) : 0;
-
-        return { type, ...vals, ctr, cpc, cpa, roas };
-      }).sort((a, b) => b.spend - a.spend);
-    }, [clientRows]);
-
-    // Hero stats for selected client
-    const clientHero = useMemo(() => {
-      const spend = clientRows.reduce((acc, r) => acc + r.spend, 0);
-      const rev = clientRows.reduce((acc, r) => acc + r.revenue, 0);
-      const roas = spend > 0 ? rev / spend : 0;
-      const target = targetRoasMap[selectedClientPerf] || 2.0;
-      return { spend, rev, roas, target };
-    }, [clientRows, selectedClientPerf, targetRoasMap]);
-
     return (
       <div className="space-y-8 animate-fade-up">
         {/* Top Dropdown for selecting client */}
@@ -1184,16 +1201,6 @@ export default function App() {
 
   // 4. Raw Data Tab
   const renderRawDataTab = () => {
-    const filteredRawRows = useMemo(() => {
-      if (!rawSearchQuery) return rawRows;
-      const q = rawSearchQuery.toLowerCase();
-      return rawRows.filter(r => 
-        r.campaignName.toLowerCase().includes(q) || 
-        r.source.toLowerCase().includes(q) || 
-        r.accountId.toLowerCase().includes(q)
-      );
-    }, [rawRows, rawSearchQuery]);
-
     return (
       <div className="space-y-8 animate-fade-up">
         {/* Intro */}
@@ -1436,16 +1443,6 @@ export default function App() {
 
   // 5. Standardized Fact Table Tab
   const renderStandardizedTab = () => {
-    const filteredStdRows = useMemo(() => {
-      if (!stdSearchQuery) return standardizedRows;
-      const q = stdSearchQuery.toLowerCase();
-      return standardizedRows.filter(r => 
-        r.standardClient.toLowerCase().includes(q) || 
-        r.standardPlatform.toLowerCase().includes(q) ||
-        r.campaignType.toLowerCase().includes(q)
-      );
-    }, [standardizedRows, stdSearchQuery]);
-
     return (
       <div className="space-y-8 animate-fade-up">
         {/* Intro */}
