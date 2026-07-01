@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "EB Garamond", Georgia, serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  --color-primary: var(--color-primary);
+  --color-accent: var(--color-accent);
+  --color-muted: var(--color-muted);
+  --color-body-text: var(--color-body-text);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-input-bg: var(--color-input-bg);
+  --color-border: var(--color-border);
+  --color-positive: var(--color-positive);
+  --color-negative: var(--color-negative);
+}
+
+:root {
+  /* ── Core Palette ── */
+  --color-primary: #051C2C;
+  --color-accent: #2251FF;
+  --color-bg: #F5F5F2;
+  --color-muted: #888888;
+  --color-body-text: #1A1A2E;
+
+  /* ── Semantic ── */
+  --color-positive: #00C853;
+  --color-negative: #D32F2F;
+
+  /* ── Surface ── */
+  --color-surface: #FFFFFF;
+  --color-input-bg: #FFFDE7;
+  --color-border: #E8E8E6;
+
+  /* ── Light Navigation Surface ── */
+  --nav-bg: #FFFFFF;
+  --nav-border: #E8E8E6;
+  --nav-text: #051C2C;
+  --nav-text-inactive: rgba(5, 28, 44, 0.45);
+
+  /* ── Light Table Header ── */
+  --table-header-bg: rgba(5, 28, 44, 0.04);
+  --table-header-sep: rgba(5, 28, 44, 0.12);
+
+  /* ── Insight & Anomaly Surfaces ── */
+  --insight-bg: rgba(5, 28, 44, 0.04);
+  --anomaly-bg: rgba(211, 47, 47, 0.04);
+
+  /* ── Typography Scale & Spacing ── */
+  --text-page-title: 28px;
+  --text-section: 18px;
+  --text-kpi-value: 36px;
+  --text-table-head: 13px;
+  --text-body: 13px;
+  --text-label: 11px;
+
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-label: 0.06em;
+
+  /* ── Radius System ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 100px;
+
+  /* ── Shadow System ── */
+  --shadow-sm: 0 1px 2px rgba(5, 28, 44, 0.04), 0 2px 8px rgba(5, 28, 44, 0.06);
+  --shadow-md: 0 2px 4px rgba(5, 28, 44, 0.04), 0 8px 24px rgba(5, 28, 44, 0.08), 0 1px 0px rgba(255, 255, 255, 0.6) inset;
+  --shadow-lg: 0 4px 8px rgba(5, 28, 44, 0.06), 0 16px 48px rgba(5, 28, 44, 0.14), 0 1px 0px rgba(255, 255, 255, 0.5) inset;
+  --shadow-nav: 0 1px 3px rgba(5, 28, 44, 0.06), 0 1px 0px rgba(5, 28, 44, 0.08);
+
+  /* ── Motion System ── */
+  --ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1.0);
+  --ease-decel: cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --ease-accel: cubic-bezier(0.4, 0.0, 1.0, 1.0);
+  --dur-fast: 150ms;
+  --dur-normal: 250ms;
+  --dur-slow: 400ms;
+
+  --nav-height: 56px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-body-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Typography pairings ── */
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: var(--tracking-display);
+}
+
+.serif-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+}
+
+.font-heading-eb {
+  font-family: var(--font-serif);
+  letter-spacing: var(--tracking-heading);
+}
+
+.font-table-head {
+  font-size: var(--text-table-head);
+  letter-spacing: var(--tracking-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.data-table th {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(5, 28, 44, 0.1);
+}
+
+.data-table td {
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(5, 28, 44, 0.05);
+}
+
+.pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-green {
+  background: #E8F5E9;
+  color: #00C853;
+}
+
+.font-body-custom {
+  font-size: var(--text-body);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Interactive Elements ── */
+.interactive-element {
+  transition: transform var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-fast) var(--ease-standard),
+              background var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard);
+}
+
+/* Card Float on Hover */
+.card-elevation-sm {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-normal) var(--ease-spring),
+              box-shadow var(--dur-normal) var(--ease-standard);
+}
+
+.card-elevation-md {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-normal) var(--ease-spring),
+              box-shadow var(--dur-normal) var(--ease-standard);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Scalable / Brightness cell feedback */
+.clickable-cell {
+  transition: transform var(--dur-fast) var(--ease-standard),
+              filter var(--dur-fast) var(--ease-standard);
+}
+.clickable-cell:hover {
+  transform: scale(1.04);
+  filter: brightness(1.05);
+}
+
+/* Fade Up transition animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 220ms var(--ease-decel) both;
+}
+
+/* Input Styles */
+.editable-input {
+  background-color: var(--color-input-bg) !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  padding: 4px 8px;
+  color: var(--color-primary);
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.editable-input:focus {
+  border-color: var(--color-accent);
+}
+
+/* Custom Data Bar */
+.data-bar-track {
+  background-color: rgba(5, 28, 44, 0.1);
+  border-radius: var(--radius-sm);
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.data-bar-fill {
+  background-color: var(--color-accent);
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width var(--dur-slow) var(--ease-standard);
+}
+
+/* Insight Block styling */
+.insight-block {
+  border-left: 3px solid var(--color-accent);
+  background-color: rgba(5, 28, 44, 0.04);
+  padding: var(--space-md);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* Pill / Badges */
+.badge-pill {
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(5, 28, 44, 0.2);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 28, 44, 0.4);
+}

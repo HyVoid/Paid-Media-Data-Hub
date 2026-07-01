@@ -1,0 +1,6 @@
+{
+  "name": "Paid Media Data Hub",
+  "description": "An interactive Paid Media marketing semantic layer and reporting portal with automatic data mapping and multi-client KPI analytics dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
