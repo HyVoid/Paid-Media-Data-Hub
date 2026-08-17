@@ -8,7 +8,7 @@
 
 > ## **No signup. No installation. Free.**
 >
-> 🌐 **Open in Browser** → HTML interactive version *(coming soon)*
+> 🌐 **Open in Browser** → [*HTML interactive version*](https://hyvoid.github.io/Paid-Media-Data-Hub/)
 >
 > 📥 **Download Excel** → Excel workbook release *(coming soon)*
 >
