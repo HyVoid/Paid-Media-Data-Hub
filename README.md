@@ -16,22 +16,6 @@
 
 ---
 
-## Screenshots
-
-### Browser Version
-
-<!-- screenshot: browser version -->
-
-*Interactive executive dashboard showing client-level ROAS, spend allocation, performance trends, and anomaly alerts from a single unified data source.*
-
-### Excel Version
-
-<!-- screenshot: excel version -->
-
-*Excel semantic layer architecture displaying raw imports, standardized dimensions, metric engines, validation controls, and executive reporting outputs.*
-
----
-
 ## What It Helps You Track
 
 * Marketing spend, revenue, and ROAS across multiple clients from a single source of truth.
